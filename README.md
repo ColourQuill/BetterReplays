@@ -6,9 +6,10 @@ IMMEDIATE ADDITIONS
 - Refactor encoder and muxer to be cleaner and have more customizability.
 
 INTENDED ADDITIONS
-- Add GUI.
+- Add support for multiple monitors at once.
 - Add replay hotkey.
 - Add file saving based on highest application running on the monitor.
+- Add GUI.
 
 POSSIBLE ADDITIONS
 - Add functionality that allows user to trim created clips at either creation time or afterwards.
