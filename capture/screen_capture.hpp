@@ -35,11 +35,14 @@ class ScreenCapture {
         bool hasEncoderInitialized();
         void initEncoder(int srcWidth, int srcHeight);
 
+        bool isRunning();
+
         static ScreenCapture* create();
     protected:
         FrameCallback onFrame;
         EncoderCallback onEncoderInit;
         bool encoderInitialized{false};
+        bool running{false};
 
         Frame latestFrame;
         std::mutex frameMutex;

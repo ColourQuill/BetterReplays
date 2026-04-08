@@ -5,14 +5,22 @@
 #include <encoder.hpp>
 #include <muxer.hpp>
 #include <buffer.hpp>
+#include <hotkey.hpp>
 #include <time.hpp>
 #include <logger.hpp>
+#include <input.hpp>
 
 // std
 #include <thread>
 #include <chrono>
 
 BetterReplays::~BetterReplays() {
+    if (saveHotkey) {
+        delete saveHotkey;
+    }
+    if (exitHotkey) {
+        delete exitHotkey;
+    }
     if (buffer) {
         delete buffer;
     }
@@ -25,6 +33,8 @@ BetterReplays::~BetterReplays() {
     if (capture) {
         delete capture;
     }
+    saveHotkey = nullptr;
+    exitHotkey = nullptr;
     buffer = nullptr;
     muxer = nullptr;
     encoder = nullptr;
@@ -46,6 +56,8 @@ bool BetterReplays::start() {
     encoder = Encoder::create();
     muxer = Muxer::create();
     buffer = new Buffer(Time::seconds(settings.replay.length));
+    saveHotkey = Hotkey::create();
+    exitHotkey = Hotkey::create();
 
     capture->setSettings(&settings);
     encoder->setSettings(&settings);
@@ -78,11 +90,17 @@ bool BetterReplays::run() {
         return false;
     }
 
-    int waitTime = 4;
-    Logger::logInfo("Main", "Waiting for " + std::to_string(waitTime) + " seconds.");
-    std::this_thread::sleep_for(std::chrono::seconds(waitTime));
+    saveHotkey->start(Key::KEY_left_alt, Key::KEY_period, [&]() { save(); });
+    exitHotkey->start(Key::KEY_left_alt, Key::KEY_comma, [&]() { stop(); });
 
-    save();
+    Logger::logInfo("BetterReplays", "Running - press (Alt + .) to save a clip && (Alt + ,) to exit.");
+
+    while (capture->isRunning()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    saveHotkey->stop();
+    exitHotkey->stop();
 
     return true;
 }

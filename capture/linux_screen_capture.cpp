@@ -62,6 +62,8 @@ bool LinuxScreenCapture::start() {
 
     pw_thread_loop_unlock(instance.threadLoop);
 
+    running = true;
+
     return true;
 }
 
@@ -79,6 +81,8 @@ void LinuxScreenCapture::stop() {
     pw_thread_loop_unlock(instance.threadLoop);
 
     encoderInitialized = false;
+
+    running = false;
 }
 
 static void onParamChanged(void* userData, uint32_t id, const struct spa_pod* param) {

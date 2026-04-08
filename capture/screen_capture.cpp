@@ -55,3 +55,7 @@ void ScreenCapture::initEncoder(int srcWidth, int srcHeight) {
     encoderInitialized = true;
     onEncoderInit(srcWidth, srcHeight);
 }
+
+bool ScreenCapture::isRunning() {
+    return running;
+}

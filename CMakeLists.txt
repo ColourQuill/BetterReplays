@@ -35,11 +35,12 @@ set(CAPTURE_DIR ${PROJECT_DIR}/capture)
 set(ENCODER_DIR ${PROJECT_DIR}/encoder)
 set(BUFFER_DIR ${PROJECT_DIR}/buffer)
 set(MUXER_DIR ${PROJECT_DIR}/muxer)
+set(HOTKEY_DIR ${PROJECT_DIR}/hotkey)
 set(PIPEWIRE_DIR ${PROJECT_DIR}/pipewire)
 set(STRUCTS_DIR ${PROJECT_DIR}/structs)
 set(UTILS_DIR ${PROJECT_DIR}/utils)
 set(AUDIO_DIR ${PROJECT_DIR}/audio)
-set(APP_DIR ${PROJECT_DIR}/app) 
+set(APP_DIR ${PROJECT_DIR}/app)
 
 # *********************************************************************************************
 #                                      SOURCE DEFINITIONS
@@ -59,6 +60,12 @@ set(BUFFER_SRC
 set(MUXER_SRC
     ${MUXER_DIR}/muxer.cpp
     ${MUXER_DIR}/ffmpeg_muxer.cpp
+)
+set(HOTKEY_SRC
+    ${HOTKEY_DIR}/hotkey.cpp
+    ${HOTKEY_DIR}/mac_hotkey.cpp
+    ${HOTKEY_DIR}/linux_hotkey.cpp
+    ${HOTKEY_DIR}/windows_hotkey.cpp
 )
 set(PIPEWIRE_SRC
 
@@ -87,6 +94,7 @@ set(SOURCES
     ${ENCODER_SRC}
     ${BUFFER_SRC}
     ${MUXER_SRC}
+    ${HOTKEY_SRC}
     ${PIPEWIRE_SRC}
     ${STRUCTS_SRC}
     ${UTILS_SRC}
@@ -109,6 +117,7 @@ target_include_directories(BetterReplays PRIVATE
     ${ENCODER_DIR}
     ${BUFFER_DIR}
     ${MUXER_DIR}
+    ${HOTKEY_DIR}
     ${PIPEWIRE_DIR}
     ${STRUCTS_DIR}
     ${UTILS_DIR}

@@ -9,6 +9,7 @@ class ScreenCapture;
 class Encoder;
 class Muxer;
 class Buffer;
+class Hotkey;
 
 class BetterReplays {
     public:
@@ -26,6 +27,8 @@ class BetterReplays {
         Encoder* encoder = nullptr;
         Muxer* muxer = nullptr;
         Buffer* buffer = nullptr;
+        Hotkey* saveHotkey = nullptr;
+        Hotkey* exitHotkey = nullptr;
 
         Settings settings{};
 };
