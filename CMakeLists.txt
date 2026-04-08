@@ -69,12 +69,17 @@ set(STRUCTS_SRC
 set(UTILS_SRC
     ${UTILS_DIR}/logger.cpp
     ${UTILS_DIR}/portal.cpp
+    ${UTILS_DIR}/timer.cpp
+    ${UTILS_DIR}/time.cpp
+    ${UTILS_DIR}/config.cpp
+    ${UTILS_DIR}/file.cpp
 )
 set(AUDIO_SRC
     ${AUDIO_DIR}/audio.cpp
 )
 set(APP_SRC 
     ${APP_DIR}/better_replays.cpp
+    ${APP_DIR}/settings.cpp
 )
 
 set(SOURCES

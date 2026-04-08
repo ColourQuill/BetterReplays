@@ -37,7 +37,6 @@ void ScreenCapture::pushFrame(Frame frame) {
         std::memcpy(latestFrame.data.data(), frame.data.data(), frame.data.size());
         frameReady.store(true);
     }
-    
 }
 
 void ScreenCapture::withLatestFrame(std::function<void(const Frame&)> fn) {
@@ -46,4 +45,13 @@ void ScreenCapture::withLatestFrame(std::function<void(const Frame&)> fn) {
         fn(latestFrame);
         frameReady.store(false);
     }
+}
+
+bool ScreenCapture::hasEncoderInitialized() {
+    return !onEncoderInit || encoderInitialized;
+}
+
+void ScreenCapture::initEncoder(int srcWidth, int srcHeight) {
+    encoderInitialized = true;
+    onEncoderInit(srcWidth, srcHeight);
 }

@@ -77,6 +77,8 @@ void LinuxScreenCapture::stop() {
     }
 
     pw_thread_loop_unlock(instance.threadLoop);
+
+    encoderInitialized = false;
 }
 
 static void onParamChanged(void* userData, uint32_t id, const struct spa_pod* param) {
@@ -105,6 +107,11 @@ static void onParamChanged(void* userData, uint32_t id, const struct spa_pod* pa
 
     stream->negotiated = true;
 
+    auto* cap = stream->instance->capture;
+    if (!cap->hasEncoderInitialized()) {
+        cap->initEncoder(stream->videoFormat.size.width, stream->videoFormat.size.height);
+    }
+
     uint8_t buffer[1024];
     spa_pod_builder b = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
 
@@ -130,8 +137,6 @@ static void onProcess(void* userData) {
     if (!stream->negotiated) {
         return;
     }
-
-    // FIX THIS TO WORK WITH FPS AND CHANGE RESOLUTION SETTINGS
 
     auto now = std::chrono::steady_clock::now();
     
@@ -204,8 +209,8 @@ const static spa_pod* buildFormat(spa_pod_builder* builder, FormatInfo& format, 
     spa_pod_frame formatFrame;
     spa_pod_frame modifierFrame;
 
-    spa_rectangle resolution = SPA_RECTANGLE(1920, 1080);
-    spa_rectangle minRes = SPA_RECTANGLE(1, 1);
+    spa_rectangle resolution = SPA_RECTANGLE(0, 0);
+    spa_rectangle minRes = SPA_RECTANGLE(0, 0);
     spa_rectangle maxRes = SPA_RECTANGLE(8192, 4320);
     spa_fraction framerate = SPA_FRACTION(60, 1);
     spa_fraction minFps = SPA_FRACTION(0, 1);

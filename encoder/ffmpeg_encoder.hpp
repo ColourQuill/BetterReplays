@@ -15,7 +15,7 @@ class FFmpegEncoder : public Encoder {
         FFmpegEncoder() = default;
         ~FFmpegEncoder();
 
-        bool init(int width, int height, int fps) override;
+        bool init(int srcWidth, int srcHeight, int dstWidth, int dstHeight, int fps) override;
         bool encode(const Frame& frame) override;
         void flush() override;
     private:

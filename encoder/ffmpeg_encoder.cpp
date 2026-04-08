@@ -19,7 +19,7 @@ FFmpegEncoder::~FFmpegEncoder() {
     }
 }
 
-bool FFmpegEncoder::init(int width, int height, int fps) {
+bool FFmpegEncoder::init(int srcWidth, int srcHeight, int dstWidth, int dstHeight, int fps) {
     const AVCodec* codec = avcodec_find_encoder(AV_CODEC_ID_H264);
     if (!codec) {
         Logger::logError("ffmpeg", "Failed to find codec.");
@@ -27,8 +27,8 @@ bool FFmpegEncoder::init(int width, int height, int fps) {
     }
 
     codecContext = avcodec_alloc_context3(codec);
-    codecContext->width = width;
-    codecContext->height = height;
+    codecContext->width = dstWidth;
+    codecContext->height = dstHeight;
     codecContext->time_base = {1, fps};
     codecContext->framerate = {fps, 1};
     codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
@@ -48,15 +48,15 @@ bool FFmpegEncoder::init(int width, int height, int fps) {
 
     avFrame = av_frame_alloc();
     avFrame->format = codecContext->pix_fmt;
-    avFrame->width = width;
-    avFrame->height = height;
+    avFrame->width = dstWidth;
+    avFrame->height = dstHeight;
     av_frame_get_buffer(avFrame, 0);
 
     avPacket = av_packet_alloc();
 
     swsContext = sws_getContext(
-        width, height, AV_PIX_FMT_BGRA,
-        width, height, AV_PIX_FMT_YUV420P,
+        srcWidth, srcHeight, AV_PIX_FMT_BGRA,
+        dstWidth, dstHeight, AV_PIX_FMT_YUV420P,
         SWS_FAST_BILINEAR, NULL, NULL, NULL
     );
 
