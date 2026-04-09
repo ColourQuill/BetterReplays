@@ -14,7 +14,10 @@
         KEY_left_ctrl = KEY_LEFTCTRL,
         KEY_right_ctrl = KEY_RIGHTCTRL,
         KEY_comma = KEY_COMMA,
-        KEY_period = KEY_DOT
+        KEY_period = KEY_DOT,
+        KEY_slash = KEY_SLASH,
+        KEY_left_bracket = KEY_LEFTBRACE,
+        KEY_right_bracket = KEY_RIGHTBRACE
     };
 #elif __APPLE__
 

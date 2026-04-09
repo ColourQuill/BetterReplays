@@ -12,6 +12,9 @@
 #include <spa/param/video/format-utils.h>
 #include <spa/pod/builder.h>
 
+// drm
+#include <drm/drm_fourcc.h>
+
 // debug
 #include <SDL2/SDL.h>
 #include <mutex>
@@ -41,6 +44,9 @@ struct Stream {
     Framerate framerate;
 
     Frame frameBuffer;
+
+    std::chrono::steady_clock::time_point lastFrametime;
+    double accumulator = 0.0;
 };
 
 struct StreamInfo {

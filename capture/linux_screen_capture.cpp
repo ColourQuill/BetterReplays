@@ -23,11 +23,23 @@
 // debug
 #include <iostream>
 
+static PixelFormat spaToPixelFormat(spa_video_format videoFormat) {
+    switch (videoFormat) {
+        case SPA_VIDEO_FORMAT_BGRA: return PixelFormat::BGRA;
+        case SPA_VIDEO_FORMAT_RGBA: return PixelFormat::RGBA;
+        case SPA_VIDEO_FORMAT_BGRx: return PixelFormat::BGRx;
+        case SPA_VIDEO_FORMAT_RGBx: return PixelFormat::RGBx;
+        case SPA_VIDEO_FORMAT_NV12: return PixelFormat::NV12;
+        case SPA_VIDEO_FORMAT_YUY2: return PixelFormat::YUY2;
+        default: return PixelFormat::NONE;
+    }
+}
+
 bool LinuxScreenCapture::init() {
     pw_init(nullptr, nullptr);
 
     int fd, node;
-    Portal::request(fd, node);
+    Portal::request(fd, node, displayConfig.restoreToken);
 
     if (!pipewireConnectFD(fd)) {
         return false;
@@ -63,6 +75,7 @@ bool LinuxScreenCapture::start() {
     pw_thread_loop_unlock(instance.threadLoop);
 
     running = true;
+    encodeThread = std::thread(&LinuxScreenCapture::encodeLoop, this);
 
     return true;
 }
@@ -113,7 +126,7 @@ static void onParamChanged(void* userData, uint32_t id, const struct spa_pod* pa
 
     auto* cap = stream->instance->capture;
     if (!cap->hasEncoderInitialized()) {
-        cap->initEncoder(stream->videoFormat.size.width, stream->videoFormat.size.height);
+        cap->initEncoder(stream->videoFormat.size.width, stream->videoFormat.size.height, spaToPixelFormat(stream->videoFormat.format));
     }
 
     uint8_t buffer[1024];
@@ -143,24 +156,19 @@ static void onProcess(void* userData) {
     }
 
     auto now = std::chrono::steady_clock::now();
-    
-    static auto lastFrameTime = now;
-    static double accumulator = 0.0; 
-    
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrameTime).count();
-    lastFrameTime = now;
-    
-    accumulator += (duration / 1000.0);
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(now - stream->lastFrametime).count();
+    stream->lastFrametime = now;
+    stream->accumulator += (duration / 1000.0);
 
     const double frameTarget = 1000.0 / 60.0;
 
-    if (accumulator < frameTarget) {
+    if (stream->accumulator < frameTarget) {
         pw_buffer* pwBuffer = pw_stream_dequeue_buffer(stream->stream);
         if (pwBuffer) pw_stream_queue_buffer(stream->stream, pwBuffer);
         return;
     }
 
-    accumulator -= frameTarget;
+    stream->accumulator -= frameTarget;
 
     pw_buffer* pwBuffer = pw_stream_dequeue_buffer(stream->stream);
     if (!pwBuffer) {
@@ -184,12 +192,20 @@ static void onProcess(void* userData) {
     frame.width = width;
     frame.height = height;
     frame.stride = stride;
+    frame.pixelFormat = spaToPixelFormat(stream->videoFormat.format);
     frame.timestampMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if (size > 0) {
+        Frame frame;
+        frame.width       = width;
+        frame.height      = height;
+        frame.stride      = stride;
+        frame.pixelFormat = spaToPixelFormat(stream->videoFormat.format);
+        frame.timestampMS = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
         frame.data.resize(size);
         std::memcpy(frame.data.data(), data, size);
-
-        stream->instance->capture->pushFrame(frame);
+        stream->instance->capture->pushFrameAsync(frame);
     }
 
     pw_stream_queue_buffer(stream->stream, pwBuffer);

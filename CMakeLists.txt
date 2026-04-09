@@ -8,7 +8,6 @@ set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # *********************************************************************************************
 
 find_package(PkgConfig REQUIRED)
-find_package(SDL2 REQUIRED)
 pkg_check_modules(PIPEWIRE REQUIRED libpipewire-0.3 libportal glib-2.0 gobject-2.0)
 pkg_check_modules(FFMPEG REQUIRED libavcodec libavutil libswscale libavformat)
 
@@ -25,7 +24,6 @@ pkg_check_modules(FFMPEG REQUIRED libavcodec libavutil libswscale libavformat)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_DIR}/build/debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_DIR}/build/debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_DIR}/build/release)
-file(MAKE_DIRECTORY ${PROJECT_DIR}/build/debug/resources)
 
 # *********************************************************************************************
 #                                      LOCATION DEFINITIONS
@@ -36,6 +34,7 @@ set(ENCODER_DIR ${PROJECT_DIR}/encoder)
 set(BUFFER_DIR ${PROJECT_DIR}/buffer)
 set(MUXER_DIR ${PROJECT_DIR}/muxer)
 set(HOTKEY_DIR ${PROJECT_DIR}/hotkey)
+set(DISPLAY_DIR ${PROJECT_DIR}/display)
 set(PIPEWIRE_DIR ${PROJECT_DIR}/pipewire)
 set(STRUCTS_DIR ${PROJECT_DIR}/structs)
 set(UTILS_DIR ${PROJECT_DIR}/utils)
@@ -67,6 +66,9 @@ set(HOTKEY_SRC
     ${HOTKEY_DIR}/linux_hotkey.cpp
     ${HOTKEY_DIR}/windows_hotkey.cpp
 )
+set(DISPLAY_SRC
+
+)
 set(PIPEWIRE_SRC
 
 )
@@ -95,6 +97,7 @@ set(SOURCES
     ${BUFFER_SRC}
     ${MUXER_SRC}
     ${HOTKEY_SRC}
+    ${DISPLAY_SRC}
     ${PIPEWIRE_SRC}
     ${STRUCTS_SRC}
     ${UTILS_SRC}
@@ -118,6 +121,7 @@ target_include_directories(BetterReplays PRIVATE
     ${BUFFER_DIR}
     ${MUXER_DIR}
     ${HOTKEY_DIR}
+    ${DISPLAY_DIR}
     ${PIPEWIRE_DIR}
     ${STRUCTS_DIR}
     ${UTILS_DIR}
@@ -135,7 +139,6 @@ target_link_libraries(BetterReplays PRIVATE
     ${PORTAL_LIBRARIES}
     ${GLIB_LIBRARIES}
     ${FFMPEG_LIBRARIES}
-    SDL2::SDL2
 )
 
 target_compile_options(BetterReplays PRIVATE

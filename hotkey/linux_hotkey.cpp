@@ -28,6 +28,15 @@ static std::vector<std::string> findKeyboards() {
     return devices;
 }
 
+bool isKeyDown(int fd, int keyCode) {
+    uint8_t keyBits[KEY_MAX / 8 + 1] = {};
+    if (ioctl(fd, EVIOCGKEY(sizeof(keyBits)), keyBits) < 0) return false;
+    return keyBits[keyCode / 8] & (1 << (keyCode % 8));
+}
+bool isKeyPressed(const input_event& ev, int keyCode) {
+    return ev.type == EV_KEY && ev.code == keyCode && ev.value == 1;
+}
+
 bool LinuxHotkey::start(int key1, int key2, HotkeyCallback callback) {
     hotkeyCallback = std::move(callback);
     running  = true;
@@ -42,46 +51,26 @@ void LinuxHotkey::stop() {
 }
 void LinuxHotkey::listenLoop(int key1, int key2) {
     auto devices = findKeyboards();
-
     std::vector<int> fds;
     for (auto& path : devices) {
         int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK);
         if (fd >= 0) fds.push_back(fd);
     }
 
-    bool key1Held = false;
-    bool key2Held = false;
-
     struct input_event ev;
     while (running) {
         for (int fd : fds) {
             while (read(fd, &ev, sizeof(ev)) > 0) {
-                if (ev.type != EV_KEY) {
-                    continue;
-                }
+                if (ev.type != EV_KEY) continue;
 
-                bool pressed = (ev.value == 1);  // 1=down, 0=up, 2=repeat
-
-                if (ev.code == key1) {
-                    key1Held = pressed;
-                }
-                if (ev.code == key2) {
-                    key2Held = pressed;
-                }
-
-                if (key1Held && key2Held && pressed) {
+                if (isKeyPressed(ev, key2) && isKeyDown(fd, key1)) {
                     Logger::logInfo("Hotkey", "Detected hotkey activation.");
-                    if (hotkeyCallback) {
-                        hotkeyCallback();
-                    }
-                    key1Held = key2Held = false;
+                    if (hotkeyCallback) hotkeyCallback();
                 }
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    for (int fd : fds) {
-        close(fd);
-    }
+    for (int fd : fds) close(fd);
 }

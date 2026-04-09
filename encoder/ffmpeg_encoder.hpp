@@ -1,6 +1,7 @@
 #ifndef __FFMPEG_ENCODER_HPP__
 #define __FFMPEG_ENCODER_HPP__
 
+// better replays
 #include <encoder.hpp>
 
 extern "C" {
@@ -15,7 +16,7 @@ class FFmpegEncoder : public Encoder {
         FFmpegEncoder() = default;
         ~FFmpegEncoder();
 
-        bool init(int srcWidth, int srcHeight, int dstWidth, int dstHeight, int fps) override;
+        bool init(int srcWidth, int srcHeight, PixelFormat srcFormat, int dstWidth, int dstHeight, int fps) override;
         bool encode(const Frame& frame) override;
         void flush() override;
     private:
@@ -25,6 +26,15 @@ class FFmpegEncoder : public Encoder {
         SwsContext* swsContext = nullptr;
 
         int64_t frameCounter = 0;
+
+        std::string codecName;
+        bool isHardware = false;
+
+        AVBufferRef* hwDeviceCtx = nullptr;
+
+        void initSoftware();
+        void initNvenc();
+        bool initVaapi(int width, int height);
 };
 
 #endif

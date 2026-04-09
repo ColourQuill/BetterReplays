@@ -18,7 +18,7 @@ class FFmpegMuxer : public Muxer {
         FFmpegMuxer() = default;
         ~FFmpegMuxer() override = default;
 
-        bool save(const std::string& filename, const std::vector<EncodedPacket>& packets, int width, int height, int fps) override;
+        bool save(const std::string& filename, const std::vector<EncodedPacket>& packets, CodecParameters codecParams) override;
     private:
         AVFormatContext* formatContext = nullptr;
         AVStream* videoStream = nullptr;

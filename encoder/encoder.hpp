@@ -5,6 +5,7 @@
 #include <frame.hpp>
 #include <encoded_packet.hpp>
 #include <settings.hpp>
+#include <codec_parameters.hpp>
 
 // std
 #include <functional>
@@ -17,16 +18,19 @@ class Encoder {
     public:
         virtual ~Encoder() = default;
 
-        virtual bool init(int srcWidth, int srcHeight, int dstWidth, int dstHeight, int fps) = 0;
+        virtual bool init(int srcWidth, int srcHeight, PixelFormat srcFormat, int dstWidth, int dstHeight, int fps) = 0;
         virtual bool encode(const Frame& frame) = 0;
         virtual void flush() = 0;
 
         void setPacketCallback(PacketCallback packetCallback) { onPacket = std::move(packetCallback); }
         void setSettings(Settings* settings) { this->settings = settings; }
 
+        const CodecParameters& getCodecParameters() const { return codecParams; }
+
         static Encoder* create();
     protected:
         PacketCallback onPacket;
+        CodecParameters codecParams;
 
         Settings* settings = nullptr;
 };

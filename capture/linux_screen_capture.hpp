@@ -21,12 +21,9 @@ class LinuxScreenCapture : public ScreenCapture {
         Instance instance{};
 
         StreamInfo getStreamInfo();
-
         bool pipewireConnectFD(int fd);
         bool pipewireConnectStream(int node, StreamInfo& streamInfo);
-
         std::vector<FormatInfo> initFormatInfo();
-
         void freeStream(Stream* stream);
         void cleanup();
 };

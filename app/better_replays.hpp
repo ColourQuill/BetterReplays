@@ -3,12 +3,10 @@
 
 // better replays
 #include <settings.hpp>
+#include <display_recorder.hpp>
 
 // forward declaration
-class ScreenCapture;
-class Encoder;
 class Muxer;
-class Buffer;
 class Hotkey;
 
 class BetterReplays {
@@ -19,18 +17,21 @@ class BetterReplays {
         bool start();
         bool run();
 
-        bool save();
+        bool save(DisplayRecorder& recorder);
+
+        void addDisplay();
 
         void stop();
     private:
-        ScreenCapture* capture = nullptr;
-        Encoder* encoder = nullptr;
+        std::vector<DisplayRecorder> recorders;
+
         Muxer* muxer = nullptr;
-        Buffer* buffer = nullptr;
-        Hotkey* saveHotkey = nullptr;
         Hotkey* exitHotkey = nullptr;
+        Hotkey* addDisplayHotkey = nullptr;
 
         Settings settings{};
+
+        bool setupRecorder(DisplayConfig& config);
 };
 
 #endif
